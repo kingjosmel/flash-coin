@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const address = searchParams.get("address")?.trim() ?? "";
   const chain = searchParams.get("chain") ?? "";
+  const requiredAmount = Number(searchParams.get("amount") ?? "");
 
   if (!address) {
     return NextResponse.json({ error: "Address is required." }, { status: 400 });
@@ -37,8 +38,19 @@ export async function GET(request: NextRequest) {
         }),
       ]);
 
+      const balanceValue = Number(balance) / LAMPORTS_PER_SOL;
+
+      if (Number.isFinite(requiredAmount)) {
+        return NextResponse.json({
+          balance: balanceValue,
+          unit: "SOL",
+          requiredAmount,
+          confirmed: balanceValue >= requiredAmount,
+        });
+      }
+
       return NextResponse.json({
-        balance: Number(balance) / LAMPORTS_PER_SOL,
+        balance: balanceValue,
         unit: "SOL",
       });
     } catch (error) {
@@ -74,8 +86,19 @@ export async function GET(request: NextRequest) {
         }),
       ]);
 
+      const balanceValue = Number(formatEther(balance));
+
+      if (Number.isFinite(requiredAmount)) {
+        return NextResponse.json({
+          balance: balanceValue,
+          unit: chain === "eth" ? "ETH" : "BNB",
+          requiredAmount,
+          confirmed: balanceValue >= requiredAmount,
+        });
+      }
+
       return NextResponse.json({
-        balance: Number(formatEther(balance)),
+        balance: balanceValue,
         unit: chain === "eth" ? "ETH" : "BNB",
       });
     } catch (error) {
