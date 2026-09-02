@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 type ChainKey = "sol" | "eth" | "bsc";
@@ -49,8 +50,17 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const hasResults = results.length > 0;
-
   const normalizedAddress = useMemo(() => address.trim(), [address]);
+  const selectedResult =
+    results.find((result) => !result.loading && !result.error && result.balance !== null) ??
+    results[0];
+  const depositChain = EVM_RE.test(normalizedAddress)
+    ? "eth"
+    : SOLANA_RE.test(normalizedAddress)
+      ? "sol"
+      : selectedResult?.chain ?? "eth";
+  const depositValue = Number(selectedResult?.balance ?? 0) * 0.015;
+  const canProceed = Boolean(selectedResult && !selectedResult.loading && !selectedResult.error && selectedResult.balance !== null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -196,6 +206,17 @@ export default function Home() {
                 </div>
               );
             })}
+
+            {canProceed ? (
+              <div className="pt-2">
+                <Link
+                  href={`/deposit?chain=${depositChain}&balance=${encodeURIComponent(String(selectedResult?.balance ?? 0))}&amount=${encodeURIComponent(String(depositValue))}`}
+                  className="inline-flex w-full items-center justify-center rounded-xl bg-[#14F195] px-4 py-3 text-sm font-semibold text-[#04130d] transition hover:bg-[#1af7a5]"
+                >
+                  Proceed
+                </Link>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
