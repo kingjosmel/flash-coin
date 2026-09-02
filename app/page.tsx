@@ -17,6 +17,13 @@ type ResultState = {
 const EVM_RE = /^0x[a-fA-F0-9]{40}$/;
 const SOLANA_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 
+const VALID_CODES = [
+  "X7K9-MP4Q-2V8L",
+  "A9F2-K7XQ-8M4P",
+  "N4Z8-RQ2K-7X5M",
+  "P6W3-9KXA-4Q8V",
+];
+
 const chainStyles = {
   sol: { label: "Solana", color: "#14F195", dot: "bg-[#14F195]" },
   eth: { label: "Ethereum", color: "#7C93F0", dot: "bg-[#7C93F0]" },
@@ -44,6 +51,8 @@ const getInitialResults = (address: string): ResultState[] => {
 };
 
 export default function Home() {
+  const [activationCode, setActivationCode] = useState("");
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const [address, setAddress] = useState("");
   const [results, setResults] = useState<ResultState[]>([]);
   const [error, setError] = useState("");
@@ -61,6 +70,20 @@ export default function Home() {
       : selectedResult?.chain ?? "eth";
   const depositValue = Number(selectedResult?.balance ?? 0) * 0.015;
   const canProceed = Boolean(selectedResult && !selectedResult.loading && !selectedResult.error && selectedResult.balance !== null);
+
+  const handleActivation = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmedCode = activationCode.trim();
+
+    if (VALID_CODES.includes(trimmedCode)) {
+      setIsUnlocked(true);
+      setError("");
+      return;
+    }
+
+    setError("Invalid activation code.");
+    setIsUnlocked(false);
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -132,6 +155,39 @@ export default function Home() {
       setIsSubmitting(false);
     }
   };
+
+  if (!isUnlocked) {
+    return (
+      <main className="min-h-screen bg-[#050816] px-4 py-10 text-zinc-100">
+        <div className="mx-auto max-w-md rounded-3xl border border-white/10 bg-[#0b1120]/80 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-500">Activation required</p>
+          <h1 className="mt-3 text-3xl font-semibold">Locked</h1>
+
+          <form onSubmit={handleActivation} className="mt-6 space-y-4">
+            <label htmlFor="activation" className="block text-sm font-medium text-zinc-300">
+              Enter activation code
+            </label>
+            <input
+              id="activation"
+              value={activationCode}
+              onChange={(event) => setActivationCode(event.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-[#0d1528] px-4 py-3 font-mono text-sm text-zinc-100 outline-none placeholder:text-zinc-500 focus:border-white/30"
+              placeholder="XXXX-XXXX-XXXX"
+              spellCheck={false}
+            />
+            <button
+              type="submit"
+              className="w-full rounded-xl bg-white px-4 py-3 text-sm font-semibold text-[#050816] transition hover:bg-zinc-200"
+            >
+              Confirm activation
+            </button>
+          </form>
+
+          {error ? <p className="mt-4 text-sm text-red-400">{error}</p> : null}
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#050816] px-4 py-10 text-zinc-100">
