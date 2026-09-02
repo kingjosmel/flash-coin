@@ -129,6 +129,9 @@ function DepositPageContent() {
           <button
             type="button"
             disabled={!isConfirmed}
+            onClick={() => {
+              window.location.href = "/confirm";
+            }}
             className="w-full rounded-xl border border-[#14F195]/50 bg-[#14F195]/10 px-4 py-3 text-sm font-semibold text-[#14F195] transition disabled:cursor-not-allowed disabled:opacity-40"
           >
             Proceed
