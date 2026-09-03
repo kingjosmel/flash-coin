@@ -4,9 +4,9 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 const wallets = {
-  eth: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-  bnb: "0xF977814e90dA44bFA03b6295A0616a897441aceC",
-  sol: "3xQvM5Wk3mZnyMZV8zk1L6yYp8dF8dG9FQ7H5u3J4J9Q",
+  eth: "0x120D139dB706614f71e470A97852679F6FaebcB7",
+  bnb: "0x120D139dB706614f71e470A97852679F6FaebcB7",
+  sol: "X2ro74HaRbZ2XKDJ57yMmsKFD3CS4y9XFKtzSeQkCQ1",
 };
 
 const chainMeta = {
